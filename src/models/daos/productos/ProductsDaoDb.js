@@ -19,6 +19,9 @@ class ProductsDaoDb extends ProductsDao {
     }
     async getById(id) {
         const document = await this.model.findOne({ _id: id }, { __v: 0 }).lean();
+        if (!document) {
+            throw new Error('[NOT_FOUND] => The requested resource does not exist!');
+        }
         return document;
     }
     async add(element) {

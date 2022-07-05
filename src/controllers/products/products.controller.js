@@ -4,12 +4,14 @@ class ProductController {
     constructor() {
         this.productApi = new ProductsApi()
     }
-    getProductsController = async (ctx) => {
+    getProductsController = async (ctx, next) => {
         try {
             let result;
+
             if (ctx.params.id) {
                 const id = ctx.params.id;
                 result = await this.productApi.getByIdApi(id);
+                console.log(result);
                 ctx.body = {
                     status: "success",
                     message: result
@@ -22,10 +24,11 @@ class ProductController {
                 }
             }
         } catch (error) {
-            ctx.throw(400, error, { id: id });
+            ctx.error = error.message;
+            await next();
         }
     }
-    addProductController = async (ctx) => {
+    addProductController = async (ctx,next) => {
         try {
             const result = await this.productApi.addApi({ ...ctx.request.body });
             ctx.body = {
@@ -34,12 +37,13 @@ class ProductController {
             }
         } catch (error) {
             if (error.code === 11000) {
-                ctx.throw(400, 'Duplicated entry ');
+                ctx.error = 'Duplicated entry';
             }
-            ctx.throw(error);
+            ctx.error = error.message;
+            await next();
         }
     }
-    updProductController = async (ctx) => {
+    updProductController = async (ctx,next) => {
         try {
             const id = ctx.params.id;
             const result = await this.productApi.updateByIdApi(id, { ...ctx.request.body });
@@ -48,15 +52,12 @@ class ProductController {
                 message: result
             }
         } catch (error) {
-            ctx.status = 400;
-            ctx.body = {
-                status: "error",
-                message: error.message
-            }
+            ctx.error = error.message;
+            await next();
         }
 
     }
-    deleteProductController = async (ctx) => {
+    deleteProductController = async (ctx,next) => {
         try {
             const id = ctx.params.id;
             const deletedProd = await this.productApi.deleteByIdApi(id);
@@ -65,11 +66,8 @@ class ProductController {
                 message: deletedProd
             }
         } catch (error) {
-            ctx.status = 400;
-            ctx.body = {
-                status: "error",
-                message: error.message
-            }
+            ctx.error = error.message;
+            await next();
         }
     }
 
