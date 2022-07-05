@@ -7,13 +7,6 @@ import router from './routers/app.routes.js';
 const app = new Koa();
 app.use(koaBody());
 app.use(router.routes());
-app.use((ctx) => {
-    ctx.status = 400;
-    ctx.body = {
-        status: "error",
-        message: ctx.error
-    }
-})
 app.use(
     mount(
         '/graphql',
@@ -24,6 +17,14 @@ app.use(
         }),
     ),
 );
+app.use((ctx) => {
+    ctx.status = 400;
+    ctx.body = {
+        status: "error",
+        message: ctx.error
+    }
+})
+
 
 
 export default app;
